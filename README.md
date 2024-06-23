@@ -1,42 +1,57 @@
 ## Create and Mint Token
 
-This Solidity contract is created to implement various token functionalities. In this process, we will learn how to create a token, mint new tokens, how to deploy them. Also, learned to mint new tokens  and burn existing ones.
-
+This Solidity contract is created to implement various token functionalities. The contract includes functionalities for minting(Only the contract owner can mint new tokens to any address), burning(Any user can burn tokens from their own balance), and transferring tokens(Users can transfer tokens to any address).The token is implemented using the OpenZeppelin library.
 ## Description
-MyToken is smart contract designed for creation and management of new token on blockchain. It contains various functionalities such as creating a token, minting new token, burning existing tokens and tracking token balances of addresses. It helps in deploying of tokens with details like initial supply,token name and abbrevation for the token . MyToken provides a simple and flexible solution for token creation, suitable for various decentralized applications. 
-
+This repository contains the Solidity code for an ERC20 token named Meta (symbol: MET). The contract leverages OpenZeppelin's ERC20 and Ownable contracts to ensure secure and standardized token behavior. With help of this contact, the owner will be able to mint token, burn tokens and transfer token from one address to another. 
 ## Getting Started
 ### Installing
-To use Mytoken, simply download or clone the solidity contact file attached to this repository.
+To use Meta, simply download or clone the solidity contact file attached to this repository.
 
 ### Executing program
 To run this program, you can use Remix, an online Solidity IDE. To get started, go to the Remix website at https://remix.ethereum.org/.
 Further steps,
 1. Compile the MyToken contract on an Ethereum-compatible blockchain. 
-2. Deploy the MyToken contract on  an Ethereum compatible blockchain.
-3. Now an account address is created for that token copy it and paste it into mint token along with required number of tokens to be minted.
-4. You can also check the  balance of token in balance by putt in the account address into it.
-5. For burning the tokens insert the account address  and no. of token needs to be burnt then click on transact.
+2. Select the environment as injected provider Metamask and connect your wallet.
+3. Deploy the MyToken contract on  an Ethereum-compatible blockchain.
+4. Now after deployment we have various functions available there like burn, transfer, and mint tokens.
+5. You can also check the  balance of token in TotalSupply.
+6. For burning the tokens insert the account address  and no. of token needs to be burnt then click on transact.
+7. For minting the tokens insert the account address  and no. of token that needs to be minted then click on transact.
+8. For transferring the tokens insert the account address to which the token has to be transferred and add the no of tokens .
+
+
 
    These are steps by which we can mint tokens, burn tokens and tracking token balance of addresses.
 
 
 ```
- // mint function
-    function mint(address _addr, uint _value) public{
-        tSupply+=_value;
-        balance[_addr]+=_value;
+ //  function mint(address _to, uint _value) public returns (bool) {
+        totalSupply += _value;
+        balanceOf[_to] += _value;
+        emit Mint(_to, _value);
+        emit Transfer(address(0), _to, _value);
+        return true;
     } 
 
 ```
-    // burn function
-    function burn(address _addr, uint _value) public{
-        if(balance[_addr]>=_value){
-            tSupply -=_value;
-        balance[_addr] -=_value;
-        }
+    //  function burn(address _from, uint _value) public returns (bool) {
+        require(balanceOf[_from] >= _value, "Insufficient balance");
+        totalSupply -= _value;
+        balanceOf[_from] -= _value;
+        emit Burn(_from, _value);
+        emit Transfer(_from, address(0), _value);
+        return true;
 
-
+```
+//
+    function transferFrom(address _from, address _to, uint _value) public override returns (bool) {
+        require(balanceOf[_from] >= _value, "Insufficient balance");
+        require(allowance[_from][msg.sender] >= _value, "Insufficient allowance");
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        allowance[_from][msg.sender] -= _value;
+        emit Transfer(_from, _to, _value);
+        return true;
 
 ## Authors
 
