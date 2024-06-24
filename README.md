@@ -56,7 +56,7 @@ Further steps,
 ## Authors
 
 Harsh Gautam
-@ gautamharshu7767@gmail.com
+@gautamharshu7767@gmail.com
 
 ## License
 
