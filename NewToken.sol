@@ -1,62 +1,64 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract Meta is IERC20 {
-    string public name = "META";
-    string public symbol = "MET";
-    uint8 public decimals = 18;
-    uint public override totalSupply = 100 * (10 ** uint(decimals));
+ contract MyERC20Token {
+    address public owner; 
+    mapping (address => uint256) public balances;
+    mapping (address => mapping (address => uint256)) public allowances;
 
-    mapping (address => uint) public balanceOf;
-    mapping (address => mapping (address => uint)) public allowance;
-    
-    event Mint(address indexed to, uint value);
-    event Burn(address indexed from, uint value);
+    uint256 public totalSupply;
+    string public name;
+    string public symbol;
+    uint8 public decimals;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Mint(address indexed to, uint256 value);
+    event Burn(address indexed from, uint256 value);
 
     constructor() {
-        balanceOf[msg.sender] = totalSupply;
+        name = "META";
+        symbol = "MET";
+        decimals = 10;
+        totalSupply = 0;
+        owner = msg.sender; // assign owner to the deployer of the contract
+    }
+    function mint(address _to, uint256 _amount) public {
+        require(msg.sender == owner, "Only the owner can mint tokens");
+        totalSupply += _amount;
+        balances[_to] += _amount;
+        emit Mint(_to, _amount);
+    }
+    function burn(address _from, uint256 _amount) public {
+        require(msg.sender == _from, "Only the owner of the tokens can burn them");
+        require(balances[_from] >= _amount, "Insufficient balance");
+        balances[_from] -= _amount;
+        totalSupply -= _amount;
+        emit Burn(_from, _amount);
     }
 
-    function transfer(address _to, uint _value) public override returns (bool) {
-        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += _value;
-        emit Transfer(msg.sender, _to, _value);
-        return true;
+    function transfer(address _from, address _to, uint256 _amount) public {
+        require(msg.sender == _from, "Only the owner of the tokens can transfer them");
+        require(balances[_from] >= _amount, "Insufficient balance");
+        balances[_from] -= _amount;
+        balances[_to] += _amount;
+        emit Transfer(_from, _to, _amount);
+    }
+    function approve(address _spender, uint256 _amount) public {
+        allowances[msg.sender][_spender] = _amount;
+    }
+    function transferFrom(address _from, address _to, uint256 _amount) public {
+        require(allowances[_from][msg.sender] >= _amount, "Insufficient allowance");
+        require(balances[_from] >= _amount, "Insufficient balance");
+        balances[_from] -= _amount;
+        balances[_to] += _amount;
+        allowances[_from][msg.sender] -= _amount;
+        emit Transfer(_from, _to, _amount);
     }
 
-    function transferFrom(address _from, address _to, uint _value) public override returns (bool) {
-        require(balanceOf[_from] >= _value, "Insufficient balance");
-        require(allowance[_from][msg.sender] >= _value, "Insufficient allowance");
-        balanceOf[_from] -= _value;
-        balanceOf[_to] += _value;
-        allowance[_from][msg.sender] -= _value;
-        emit Transfer(_from, _to, _value);
-        return true;
+    function balanceOf(address _owner) public view returns (uint256) {
+        return balances[_owner];
     }
 
-    function approve(address _spender, uint _value) public override returns (bool) {
-        allowance[msg.sender][_spender] = _value;
-        emit Approval(msg.sender, _spender, _value);
-        return true;
-    }
-
-    function mint(address _to, uint _value) public returns (bool) {
-        totalSupply += _value;
-        balanceOf[_to] += _value;
-        emit Mint(_to, _value);
-        emit Transfer(address(0), _to, _value);
-        return true;
-    }
-
-    function burn(address _from, uint _value) public returns (bool) {
-        require(balanceOf[_from] >= _value, "Insufficient balance");
-        totalSupply -= _value;
-        balanceOf[_from] -= _value;
-        emit Burn(_from, _value);
-        emit Transfer(_from, address(0), _value);
-        return true;
-    }
 }
