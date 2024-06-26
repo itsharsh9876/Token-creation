@@ -25,33 +25,29 @@ Further steps,
 
 
 ```
- //  function mint(address _to, uint _value) public returns (bool) {
-        totalSupply += _value;
-        balanceOf[_to] += _value;
-        emit Mint(_to, _value);
-        emit Transfer(address(0), _to, _value);
-        return true;
+ //  function mint(address _to, uint256 _amount) public {
+        require(msg.sender == owner, "Only the owner can mint tokens");
+        totalSupply += _amount;
+        balances[_to] += _amount;
+        emit Mint(_to, _amount);
     } 
 
 ```
-    //  function burn(address _from, uint _value) public returns (bool) {
-        require(balanceOf[_from] >= _value, "Insufficient balance");
-        totalSupply -= _value;
-        balanceOf[_from] -= _value;
-        emit Burn(_from, _value);
-        emit Transfer(_from, address(0), _value);
-        return true;
+    //  function burn(address _from, uint256 _amount) public {
+        require(msg.sender == _from, "Only the owner of the tokens can burn them");
+        require(balances[_from] >= _amount, "Insufficient balance");
+        balances[_from] -= _amount;
+        totalSupply -= _amount;
+        emit Burn(_from, _amount);
 
 ```
 //
-    function transferFrom(address _from, address _to, uint _value) public override returns (bool) {
-        require(balanceOf[_from] >= _value, "Insufficient balance");
-        require(allowance[_from][msg.sender] >= _value, "Insufficient allowance");
-        balanceOf[_from] -= _value;
-        balanceOf[_to] += _value;
-        allowance[_from][msg.sender] -= _value;
-        emit Transfer(_from, _to, _value);
-        return true;
+    function transfer(address _from, address _to, uint256 _amount) public {
+        require(msg.sender == _from, "Only the owner of the tokens can transfer them");
+        require(balances[_from] >= _amount, "Insufficient balance");
+        balances[_from] -= _amount;
+        balances[_to] += _amount;
+        emit Transfer(_from, _to, _amount);
 
 ## Authors
 
